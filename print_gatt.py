@@ -6,7 +6,6 @@ from __future__ import print_function
 import sys
 
 from bt4LE import BTLE_ADV_IND, BTLE_DATA
-from bt4LE_GAP import *
 from bt4LE_GATT import *
 from scapy.layers.bluetooth import ATT_Hdr, ATT_Read_Request, ATT_Read_Response, ATT_Read_By_Group_Type_Request, ATT_Read_By_Group_Type_Response, ATT_Write_Request, ATT_Write_Response, ATT_Write_Command
 #from scapy.packet import ls, Raw
@@ -50,4 +49,3 @@ if __name__ == "__main__":
             ls(p)
             break
         
-    s.close()

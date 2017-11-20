@@ -11,6 +11,7 @@ from scapy.fields import *
 from scapy.layers import dot11
 from scapy.contrib.ppi import PPI, addPPIType, PPIGenericFldHdr
 from scapy.contrib.ppi_geotag import XLEIntField, XLEShortField
+from scapy.layers.bluetooth import EIR_Hdr
 
 class HiddenField:
     '''
@@ -32,47 +33,6 @@ class HiddenField:
         return hash(self.fld)
     def __eq__(self, other):
         return self.fld == other
-
-GAP_TYPES = {
-    0x01: 'Flags',
-    0x02: 'Incomplete List of 16-bit Service Class UUIDs',
-    0x03: 'Complete List of 16-bit Service Class UUIDs',
-    0x04: 'Incomplete List of 32-bit Service Class UUIDs',
-    0x05: 'Complete List of 32-bit Service Class UUIDs',
-    0x06: 'Incomplete List of 128-bit Service Class UUIDs',
-    0x07: 'Complete List of 128-bit Service Class UUIDs',
-    0x08: 'Shortened Local Name',
-    0x09: 'Complete Local Name',
-    0x0A: 'Tx Power Level',
-    0x0D: 'Class of Device',
-    0x0E: 'Simple Pairing Hash C',
-    0x0F: 'Simple Pairing Randomizer',
-    0x10: 'Security Manager TK Value',
-    0x11: 'Security Manager Out of Band Flags',
-    0x12: 'Slave Connection Interval Range',
-    0x14: 'List of 16-bit Service Solicitation UUIDs',
-    0x1F: 'List of 32-bit Service Solicitation UUIDs',
-    0x15: 'List of 128-bit Service Solicitation UUIDs',
-    0x16: 'Service Data',
-    0x20: 'Service Data - 32-bit UUID',
-    0x21: 'Service Data - 128-bit UUID',
-    0x17: 'Public Target Address',
-    0x18: 'Random Target Address',
-    0x19: 'Appearance',
-    0x1A: 'Advertising Interval',
-    0x1B: 'LE Bluetooth Device Address',
-    0x1C: 'LE Role',
-    0x1D: 'Simple Pairing Hash C-256',
-    0x1E: 'Simple Pairing Randomizer R-256',
-    0x3D: '3D Information Data',
-    0xFF: 'Manufacturer Specific Data',
-}
-
-class GAPLenField(LenField):
-    def i2m(self, pkt, x):
-        if x is None:
-            x = len(pkt.payload)+1
-        return x
 
 class BTLE_PPI(Packet):
     name = "BTLE PPI header"
@@ -237,27 +197,16 @@ class BTLE_DATA(Packet):
             s += " retry"
         return (s, [BTLE])
 
-class BTLE_AdvData(Packet): #GAP
-    name = "BTLE advertising data"
-    fields_desc = [
-        #FieldLenField("len", None, fmt="B",adjust=lambda pkt,x:x+1),
-        GAPLenField("len", None, fmt="B"),
-        BitEnumField("type", 0, 8, GAP_TYPES)
-    ]
-
-    def extract_padding(self, s):
-        return s[:self.len-1],s[self.len-1:]
-
 class BTLE_ADV_IND(Packet):
     name = "BTLE ADV_IND"
     fields_desc = [
         BDAddrField("AdvA", None),
-        PacketListField("data", None, BTLE_AdvData)
+        PacketListField("data", None, EIR_Hdr)
     ]
     def mysummary(self):
         adv_type_field = None
         if 0 < len(self.data):
-            adv_type_field = BTLE_AdvData().get_field('type')
+            adv_type_field = EIR_Hdr().get_field('type')
         t = ", ".join(adv_type_field.i2repr(l, l.type) for l in self.data)
         return self.name+" "+self.AdvA+" > * / "+t
 
@@ -297,7 +246,7 @@ class BTLE_SCAN_RSP(Packet):
     name = "BTLE scan response"
     fields_desc = [
         BDAddrField("AdvA", ""),
-        PacketListField("data", None, BTLE_AdvData)
+        PacketListField("data", None, EIR_Hdr)
     ]
 
     def answers(self, other):
@@ -306,7 +255,7 @@ class BTLE_SCAN_RSP(Packet):
     def mysummary(self):
         adv_type_field = None
         if 0 < len(self.data):
-            adv_type_field = BTLE_AdvData().get_field('type')
+            adv_type_field = EIR_Hdr().get_field('type')
         t = ", ".join(adv_type_field.i2repr(l, l.type) for l in self.data)
         
         return self.sprintf("SCAN RESP %BTLE_SCAN_RSP.AdvA% > * / "+t)

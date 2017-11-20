@@ -36,6 +36,7 @@ class PSD_Stream(object):
 
         p = PPI()/BTLE(data)
         p.PPIFieldHeaders = BTLE_PPI(btle_channel=channel, rssi_avg=rssi_dbm)
+        p.time = ts/1000.0
 
         return p
 
