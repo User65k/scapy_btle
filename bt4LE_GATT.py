@@ -1,9 +1,9 @@
 ## This file is for use with Scapy
 ## Bluetooth 4LE GATT layer
 
-from scapy.layers.bluetooth import L2CAP_Hdr, ATT_Hdr
+from scapy.layers.bluetooth import XLEShortField, L2CAP_Hdr, ATT_Hdr
 
-from scapy.packet import Packet, bind_layers, Raw
+from scapy.packet import Packet, bind_layers
 from scapy.fields import *
 from bt4LE import BTLE_DATA
 
@@ -32,8 +32,8 @@ bind_layers(BTLE_DATA, CtrlPDU, LLID=3)
 #stuff below should vanish at some point
 class PrepareWriteReq(Packet):
     fields_desc = [
-        XShortField("Handle", 0),
-        ShortField("Offset", 0),
+        XLEShortField("Handle", 0),
+        LEShortField("Offset", 0),
         StrField("Value", "")
     ]
 class PrepareWriteResp(PrepareWriteReq):
@@ -48,8 +48,8 @@ class ExecWriteResp(Packet):
 
 class ReadBlobReq(Packet):
     fields_desc = [
-        XShortField("Handle", 0),
-        ShortField("Offset", 0)
+        XLEShortField("Handle", 0),
+        LEShortField("Offset", 0)
     ]
 
 class ReadBlobResp(Packet):
