@@ -5,8 +5,8 @@
 from __future__ import print_function
 import struct
 
-from bt4LE import BTLE, BTLE_PPI
-from scapy.contrib.ppi import PPI
+from scapy.layers.bluetooth4LE import BTLE, BTLE_PPI
+from scapy.layers.ppi import PPI
 
 class PSD_Stream(object):
     def __init__(self, file_path):

@@ -5,9 +5,8 @@
 from __future__ import print_function
 import sys
 
-from bt4LE import BTLE_ADV_IND, BTLE_DATA
-from bt4LE_GATT import *
-from scapy.layers.bluetooth import ATT_Read_Request, ATT_Read_Response, ATT_Write_Request
+from scapy.layers.bluetooth4LE import BTLE_ADV_IND, BTLE_DATA
+from scapy.layers.bluetooth import ATT_Read_Request, ATT_Read_Response, ATT_Write_Request, ATT_PrepareWriteReq
 
 from scapy.utils import PcapReader
 from PSD_Reader import PSD_Stream
@@ -44,10 +43,10 @@ if __name__ == "__main__":
         elif p.haslayer(ATT_Write_Request):
             print("W: "+hex(p[ATT_Write_Request].gatt_handle))
             print(">  "+hexlify(p[ATT_Write_Request].data))
-        elif p.haslayer(PrepareWriteReq):
-            h = p[PrepareWriteReq].Handle
-            o = p[PrepareWriteReq].Offset
-            v = hexlify(p[PrepareWriteReq].Value)
+        elif p.haslayer(ATT_PrepareWriteReq):
+            h = p[ATT_PrepareWriteReq].handle
+            o = p[ATT_PrepareWriteReq].offset
+            v = hexlify(p[ATT_PrepareWriteReq].value)
             print("W: "+hex(h))
             print("> "+str(o)+" > "+v)
         else:
